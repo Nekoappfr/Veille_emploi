@@ -56,13 +56,20 @@ function PaywallModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 href="https://buy.stripe.com/example"
-                className="w-full bg-brand text-white py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-3 shadow-xl shadow-brand/20 hover:shadow-brand/40 transition-all"
+                className="w-full bg-brand text-white py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-3 shadow-xl shadow-brand/20 hover:shadow-brand/40 transition-all mb-4"
               >
                 <Sparkles className="w-6 h-6" />
                 S'abonner maintenant — 19€/mois
               </motion.a>
+
+              <button 
+                onClick={onClose}
+                className="text-ink/40 hover:text-ink text-sm font-bold transition-colors"
+              >
+                Continuer à explorer le site
+              </button>
               
-              <p className="mt-6 text-xs text-ink/30 uppercase tracking-widest font-bold">
+              <p className="mt-8 text-xs text-ink/30 uppercase tracking-widest font-bold">
                 Sans engagement • Annulation en 1 clic
               </p>
             </div>
@@ -91,7 +98,16 @@ export default function App() {
   const [step, setStep] = useState(1);
   const [selectedExp, setSelectedExp] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -142,28 +158,36 @@ export default function App() {
   return (
     <div className="min-h-screen selection:bg-brand/20">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20">
-              <Radar className="text-white w-6 h-6" />
-            </div>
-            <span className="font-display font-bold text-xl tracking-tight text-ink">Radar OSINT</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-ink/60">
-            <a href="#valeur" className="hover:text-brand transition-colors">Valeur</a>
-            <a href="#tarifs" className="hover:text-brand transition-colors">Tarifs</a>
-          </div>
-          <a 
-            href="https://buy.stripe.com/example" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-ink text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-brand transition-all shadow-lg shadow-ink/5"
+      <AnimatePresence>
+        {scrolled && (
+          <motion.nav 
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5"
           >
-            S'abonner
-          </a>
-        </div>
-      </nav>
+            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20">
+                  <Radar className="text-white w-6 h-6" />
+                </div>
+                <span className="font-display font-bold text-xl tracking-tight text-ink">Radar OSINT</span>
+              </div>
+              <div className="hidden md:flex items-center gap-8 text-sm font-medium text-ink/60">
+                <a href="#valeur" className="hover:text-brand transition-colors">Valeur</a>
+                <a href="#tarifs" className="hover:text-brand transition-colors">Tarifs</a>
+              </div>
+              <button 
+                onClick={() => setShowPaywall(true)}
+                className="bg-ink text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-brand transition-all shadow-lg shadow-ink/5"
+              >
+                S'abonner
+              </button>
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
 
       <main className="relative">
         {/* Background Grid */}
@@ -171,41 +195,31 @@ export default function App() {
         
         <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
         {/* Hero Section */}
-        <section className="relative pt-32 pb-20 px-4 md:px-6 overflow-hidden">
+        <section className="relative pt-12 md:pt-20 pb-20 px-4 md:px-6 overflow-hidden">
           <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_0.6fr] gap-6 md:gap-12 items-center">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className={`relative ${isExpOpen ? 'z-50' : 'z-10'}`}
+              className={`relative ${isExpOpen ? 'z-[110]' : 'z-10'}`}
             >
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 md:mb-10 text-ink">
+              <AnimatePresence>
+                {isExpOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setIsExpOpen(false)}
+                    className="fixed inset-0 bg-ink/20 backdrop-blur-sm z-[-1]"
+                  />
+                )}
+              </AnimatePresence>
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 text-ink">
                 Le radar de l'emploi <span className="text-brand">OSINT.</span>
               </h1>
-              
-              <div className="flex items-center gap-3 mb-6 group cursor-default">
-                <div className="flex -space-x-1">
-                  {[1, 2, 3].map((i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ opacity: [0.4, 1, 0.4] }}
-                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
-                      className="w-1.5 h-1.5 rounded-full bg-brand"
-                    />
-                  ))}
-                </div>
-                <span className="text-sm font-bold tracking-tight text-brand/80 uppercase">
-                  Soyez le premier à candidater
-                </span>
-                <div className="h-px flex-1 bg-gradient-to-r from-brand/20 to-transparent max-w-[100px]" />
-              </div>
-
-              <p className="text-base md:text-xl text-ink/60 leading-relaxed max-w-xl mb-4">
-                Nous surveillons le web pour vous et livrons les meilleures offres en OSINT, Intelligence Économique et Due Diligence.
-              </p>
 
               <div className="flex items-center gap-3 mb-8">
-                <div className="bg-brand/5 px-4 py-1 rounded-lg border border-brand/10 backdrop-blur-sm">
+                <div className="bg-brand/5 px-3 py-1 rounded-lg border border-brand/10 backdrop-blur-sm">
                   <span className="text-[10px] md:text-xs font-mono font-black text-brand tracking-[0.3em] uppercase">
                     DÉTECTION_TEMPS_RÉEL
                   </span>
@@ -229,6 +243,28 @@ export default function App() {
                   ))}
                 </div>
               </div>
+              
+              <div className="flex items-center gap-3 mb-6 group cursor-default">
+                <div className="flex -space-x-1">
+                  {[1, 2, 3].map((i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                      className="w-1.5 h-1.5 rounded-full bg-brand"
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-bold tracking-tight text-brand/80 uppercase">
+                  Soyez le premier à candidater
+                </span>
+                <div className="h-px flex-1 bg-gradient-to-r from-brand/20 to-transparent max-w-[100px]" />
+              </div>
+
+              <p className="text-base md:text-xl text-ink/60 leading-relaxed max-w-xl mb-4">
+                Nous surveillons le web pour vous et livrons les meilleures offres en OSINT, Intelligence Économique et Due Diligence.
+              </p>
+
 
               <div className="relative max-w-xl mb-8" ref={dropdownRef}>
                 <motion.div 
@@ -327,6 +363,7 @@ export default function App() {
                   )}
                 </AnimatePresence>
               </div>
+
 
               {/* Innovative Marquee Band */}
               <div className="relative mb-12 group">
@@ -544,12 +581,12 @@ export default function App() {
                       <span className="text-6xl md:text-8xl font-black tracking-tighter text-white">15€</span>
                       <span className="text-white/30 font-bold text-lg md:text-xl">/ 3 mois</span>
                     </div>
-                    <a 
-                      href="https://buy.stripe.com/example"
+                    <button 
+                      onClick={() => setShowPaywall(true)}
                       className="w-full bg-brand text-white py-4 md:py-6 rounded-xl md:rounded-2xl font-black text-lg md:text-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(255,85,0,0.3)] block"
                     >
                       S'ABONNER MAINTENANT
-                    </a>
+                    </button>
                     <div className="flex items-center justify-center gap-2 mt-6 md:mt-8 text-white/30 text-xs md:text-sm font-medium">
                       <ShieldCheck className="w-4 h-4" />
                       Paiement sécurisé via Stripe
@@ -610,15 +647,24 @@ export default function App() {
       {/* Mobile Navigation */}
       <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-lg">
         <div className="bg-white/60 backdrop-blur-2xl border border-black/5 shadow-2xl rounded-full p-1.5 flex items-center justify-around">
-          <button className="flex flex-col items-center gap-1 p-2 text-brand transition-colors">
+          <button 
+            onClick={() => setShowPaywall(true)}
+            className="flex flex-col items-center gap-1 p-2 text-brand transition-colors"
+          >
             <Compass className="w-5 h-5" />
             <span className="text-[8px] font-mono font-black uppercase tracking-[0.2em]">Explorer</span>
           </button>
-          <button className="flex flex-col items-center gap-1 p-2 text-ink/30 hover:text-brand transition-colors">
+          <button 
+            onClick={() => setShowPaywall(true)}
+            className="flex flex-col items-center gap-1 p-2 text-ink/30 hover:text-brand transition-colors"
+          >
             <Heart className="w-5 h-5" />
             <span className="text-[8px] font-mono font-black uppercase tracking-[0.2em]">Favoris</span>
           </button>
-          <button className="flex flex-col items-center gap-1 p-2 text-ink/30 hover:text-brand transition-colors">
+          <button 
+            onClick={() => setShowPaywall(true)}
+            className="flex flex-col items-center gap-1 p-2 text-ink/30 hover:text-brand transition-colors"
+          >
             <LayoutDashboard className="w-5 h-5" />
             <span className="text-[8px] font-mono font-black uppercase tracking-[0.2em]">Dashboard</span>
           </button>
