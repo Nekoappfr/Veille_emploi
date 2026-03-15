@@ -1,0 +1,5 @@
+{
+  "name": "Radar OSINT",
+  "description": "Service de curation d'offres d'emploi en OSINT, Intelligence Économique et Due Diligence.",
+  "requestFramePermissions": []
+}

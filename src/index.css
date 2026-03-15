@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&family=Space+Grotesk:wght@700&family=Bebas+Neue&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-tech: "Space Grotesk", sans-serif;
+  --font-impact: "Bebas Neue", sans-serif;
+  --color-brand: #FF5500;
+  --color-ink: #0F172A;
+  --color-surface: #FFFFFF;
+  --color-border: rgba(15, 23, 42, 0.08);
+  --animate-marquee: marquee 8s linear infinite;
+  --animate-shimmer: shimmer 2s infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+}
+
+@layer base {
+  body {
+    @apply font-sans text-ink bg-white;
+  }
+}
