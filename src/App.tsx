@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "motion/react";
-import { Radar, Search, ShieldCheck, Clock, ArrowRight, CheckCircle2, Globe, Mail, ChevronDown, GraduationCap, Briefcase, Rocket, MapPin, Compass, Flag, Undo2, X, Sparkles, Zap, LayoutDashboard, Heart } from "lucide-react";
+import { Radar, Search, ShieldCheck, Clock, ArrowRight, CheckCircle2, Globe, Mail, ChevronDown, GraduationCap, Briefcase, Rocket, MapPin, Compass, Flag, Undo2, X, Sparkles, Zap, LayoutDashboard, Heart, ArrowLeft, Menu, Bell } from "lucide-react";
 import * as React from "react";
 import { useEffect, useState, useRef } from "react";
 
@@ -13,64 +13,41 @@ function PaywallModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-ink/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-ink/40 backdrop-blur-md"
           />
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative bg-white border border-black/5 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden"
           >
-            <button 
-              onClick={onClose}
-              className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full text-ink/20 hover:text-ink transition-all z-10"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <div className="relative p-8 md:p-12 text-center">
-              <div className="w-20 h-20 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-8">
-                <Zap className="w-10 h-10 text-brand" />
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 bg-brand-light rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <ShieldCheck className="text-brand w-8 h-8" />
               </div>
               
-              <h2 className="font-display text-3xl font-extrabold mb-4 text-ink">Accès Premium Requis</h2>
-              <p className="text-ink/60 text-lg mb-8">
-                Vous avez trouvé le canal idéal ! Pour rejoindre nos groupes Telegram privés et recevoir les alertes en temps réel, un abonnement est nécessaire.
+              <h3 className="font-display text-2xl font-bold text-ink mb-3">Contenu Réservé</h3>
+              <p className="text-ink-light leading-relaxed mb-8">
+                Cette fonctionnalité est réservée aux membres de la communauté <span className="font-work font-bold">Wørk.ie</span>. Rejoignez-nous pour accéder à l'intégralité des outils.
               </p>
 
-              <div className="space-y-3 mb-10">
-                {[
-                  "Accès illimité à tous les canaux Telegram",
-                  "Alertes instantanées 24h/24",
-                  "Offres exclusives (marchés cachés)",
-                  "Support prioritaire par nos experts"
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-3 text-left bg-slate-50 border border-black/5 p-3 rounded-xl">
-                    <CheckCircle2 className="w-5 h-5 text-brand shrink-0" />
-                    <span className="font-medium text-ink/80 text-sm">{feature}</span>
-                  </div>
-                ))}
+              <div className="space-y-3">
+                <button 
+                  onClick={() => window.location.href = '#tarifs'}
+                  className="w-full bg-brand text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-brand/20 transition-all"
+                >
+                  Découvrir les Offres
+                </button>
+                <button 
+                  onClick={onClose}
+                  className="w-full bg-surface text-ink-light py-4 rounded-xl font-bold hover:bg-black/5 transition-all"
+                >
+                  Plus tard
+                </button>
               </div>
 
-              <motion.a 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                href="https://buy.stripe.com/example"
-                className="w-full bg-brand text-white py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-3 shadow-xl shadow-brand/20 hover:shadow-brand/40 transition-all mb-4"
-              >
-                <Sparkles className="w-6 h-6" />
-                S'abonner maintenant — 19€/mois
-              </motion.a>
-
-              <button 
-                onClick={onClose}
-                className="text-ink/40 hover:text-ink text-sm font-bold transition-colors"
-              >
-                Continuer à explorer le site
-              </button>
-              
-              <p className="mt-8 text-xs text-ink/30 uppercase tracking-widest font-bold">
-                Sans engagement • Annulation en 1 clic
+              <p className="mt-6 text-xs text-ink-light/60">
+                Paiement sécurisé par Stripe. Sans engagement.
               </p>
             </div>
           </motion.div>
@@ -95,7 +72,8 @@ function Counter({ value }: { value: number }) {
 export default function App() {
   const [isExpOpen, setIsExpOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [step, setStep] = useState(1);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [cityInput, setCityInput] = useState("");
   const [selectedExp, setSelectedExp] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -123,7 +101,8 @@ export default function App() {
         // Reset to step 1 when closing if needed, or keep it. Let's reset for clarity.
         setTimeout(() => {
           if (!isExpOpen) {
-            setStep(1);
+            setSelectedCity(null);
+            setCityInput("");
             setSelectedExp(null);
           }
         }, 300);
@@ -144,20 +123,66 @@ export default function App() {
     { label: "Europe / International", icon: <Globe className="w-5 h-5" />, link: "https://t.me/example_intl" },
   ];
 
+  const handleCitySelect = (city: string) => {
+    setSelectedCity(city);
+    setCityInput(city);
+    setIsExpOpen(true);
+  };
+
   const handleExpSelect = (label: string) => {
     setSelectedExp(label);
-    setStep(2);
+    // Final action: redirect or show success
+    // For now, let's just close and maybe show a success state or redirect to Telegram
+    window.open("https://t.me/example_france", "_blank");
+    setIsExpOpen(false);
   };
+
+  const radarJobs = [
+    {
+      title: "Analyste Cyber-OSINT",
+      company: "Thales",
+      location: "Vélizy",
+      tags: ["Cyber", "OSINT"],
+      time: "Il y a 31j",
+      description: "Expertise en surveillance cyber et automatisation de collecte de données sensibles."
+    },
+    {
+      title: "Investigateur Fraude",
+      company: "BNP Paribas",
+      location: "Paris",
+      tags: ["AML", "Blockchain"],
+      time: "Il y a 34j",
+      description: "Analyse des transactions suspectes et traçage d'actifs sur les registres distribués."
+    },
+    {
+      title: "Due Diligence Officer",
+      company: "Kroll",
+      location: "London",
+      tags: ["Corporate", "KYC"],
+      time: "Il y a 38j",
+      description: "Enquêtes de réputation et vérification d'antécédents pour fusions-acquisitions."
+    },
+    {
+      title: "Veilleur Stratégique",
+      company: "Airbus",
+      location: "Toulouse",
+      tags: ["E-Reputation", "Social"],
+      time: "Il y a 42j",
+      description: "Surveillance des signaux faibles et analyse de l'image de marque sur les réseaux."
+    }
+  ];
 
   const resetSearch = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setStep(1);
+    setSelectedCity(null);
+    setCityInput("");
     setSelectedExp(null);
+    setIsExpOpen(false);
   };
 
   return (
-    <div className="min-h-screen selection:bg-brand/20">
-      {/* Navigation */}
+    <div className="min-h-screen bg-surface selection:bg-brand/20 font-sans text-ink">
+      {/* Navigation - Scrolled only */}
       <AnimatePresence>
         {scrolled && (
           <motion.nav 
@@ -165,22 +190,23 @@ export default function App() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5"
+            className="fixed top-0 left-0 right-0 z-[110] bg-white/90 backdrop-blur-md border-b border-black/5 shadow-sm"
           >
-            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20">
-                  <Radar className="text-white w-6 h-6" />
+                <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center shadow-lg shadow-brand/20">
+                  <Radar className="text-white w-5 h-5" />
                 </div>
-                <span className="font-display font-bold text-xl tracking-tight text-ink">Radar OSINT</span>
+                <span className="font-work font-extrabold text-lg tracking-tight text-ink">Wørk.ie</span>
               </div>
-              <div className="hidden md:flex items-center gap-8 text-sm font-medium text-ink/60">
+              <div className="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-ink/40">
                 <a href="#valeur" className="hover:text-brand transition-colors">Valeur</a>
+                <a href="#forums" className="hover:text-brand transition-colors">Forums</a>
                 <a href="#tarifs" className="hover:text-brand transition-colors">Tarifs</a>
               </div>
               <button 
                 onClick={() => setShowPaywall(true)}
-                className="bg-ink text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-brand transition-all shadow-lg shadow-ink/5"
+                className="bg-brand text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-brand/90 transition-all shadow-lg shadow-brand/20"
               >
                 S'abonner
               </button>
@@ -189,316 +215,203 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main className="relative">
-        {/* Background Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+      <main className="relative pt-6 pb-24">
+        {/* Background Grid - Subtler */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000003_1px,transparent_1px),linear-gradient(to_bottom,#00000003_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
         
         <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
-        {/* Hero Section */}
-        <section className="relative pt-12 md:pt-20 pb-20 px-4 md:px-6 overflow-hidden">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_0.6fr] gap-6 md:gap-12 items-center">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className={`relative ${isExpOpen ? 'z-[110]' : 'z-10'}`}
-            >
-              <AnimatePresence>
-                {isExpOpen && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setIsExpOpen(false)}
-                    className="fixed inset-0 bg-ink/20 backdrop-blur-sm z-[-1]"
-                  />
-                )}
-              </AnimatePresence>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 text-ink">
-                Le radar de l'emploi <span className="text-brand">OSINT.</span>
-              </h1>
+        
+        {/* Hero Section - Vantage Style */}
+        <section className="relative px-6 max-w-xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <h1 className="text-4xl font-extrabold leading-[1.1] text-ink mb-6 tracking-tight">
+              <span className="font-work text-4xl font-black tracking-tighter">Wørk.ie :</span> <br />
+              <span className="text-brand">Soyez le premier</span> <br />
+              à candidater.
+            </h1>
 
-              <div className="flex items-center gap-3 mb-8">
-                <div className="bg-brand/5 px-3 py-1 rounded-lg border border-brand/10 backdrop-blur-sm">
-                  <span className="text-[10px] md:text-xs font-mono font-black text-brand tracking-[0.3em] uppercase">
-                    DÉTECTION_TEMPS_RÉEL
-                  </span>
+            <p className="text-[10px] font-black text-ink/40 uppercase tracking-[0.2em] mb-3 ml-1">
+              Le premier agrégateur d'opportunités qualifiées en OSINT et Intelligence Economique.
+            </p>
+
+            {/* Experience Dropdown CTA - Vantage Style */}
+            <div className="relative mb-8" ref={dropdownRef}>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
+                  <MapPin className={`w-5 h-5 transition-colors ${selectedCity ? 'text-brand' : 'text-ink/20'}`} />
                 </div>
-                <div className="flex gap-1.5">
-                  {[0, 1, 2].map((i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ 
-                        opacity: [0.2, 1, 0.2],
-                        scale: [0.9, 1.1, 0.9]
-                      }}
-                      transition={{
-                        duration: 1.2,
-                        repeat: Infinity,
-                        delay: i * 0.2,
-                        ease: "easeInOut"
-                      }}
-                      className="w-1.5 h-1.5 rounded-full bg-brand"
-                    />
-                  ))}
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3 mb-6 group cursor-default">
-                <div className="flex -space-x-1">
-                  {[1, 2, 3].map((i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ opacity: [0.4, 1, 0.4] }}
-                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
-                      className="w-1.5 h-1.5 rounded-full bg-brand"
-                    />
-                  ))}
-                </div>
-                <span className="text-sm font-bold tracking-tight text-brand/80 uppercase">
-                  Soyez le premier à candidater
-                </span>
-                <div className="h-px flex-1 bg-gradient-to-r from-brand/20 to-transparent max-w-[100px]" />
-              </div>
-
-              <p className="text-base md:text-xl text-ink/60 leading-relaxed max-w-xl mb-4">
-                Nous surveillons le web pour vous et livrons les meilleures offres en OSINT, Intelligence Économique et Due Diligence.
-              </p>
-
-
-              <div className="relative max-w-xl mb-8" ref={dropdownRef}>
-                <motion.div 
-                  className={`flex items-center gap-4 border transition-all duration-300 p-2 pl-6 rounded-2xl shadow-2xl ${isExpOpen ? 'bg-white backdrop-blur-xl border-brand ring-4 ring-brand/10' : 'bg-white border-black/5 hover:border-brand/50'}`}
-                  onClick={() => setIsExpOpen(!isExpOpen)}
-                >
-                  {step === 1 ? (
-                    <Search className={`w-6 h-6 transition-colors ${isExpOpen ? 'text-brand' : 'text-ink/30'}`} />
-                  ) : (
-                    <MapPin className="w-6 h-6 text-brand" />
-                  )}
-                  
-                  <div className="flex-1 cursor-pointer py-3">
-                    <p className="text-ink/40 text-[10px] md:text-xs font-medium uppercase tracking-wider mb-0.5 flex items-center gap-2">
-                      {step === 1 ? "Étape 1/2 : Votre profil" : "Étape 2/2 : Localisation"}
-                      {selectedExp && <span className="text-brand font-bold">• {selectedExp}</span>}
-                    </p>
-                    <p className="text-ink font-bold text-sm md:text-base leading-tight">
-                      {step === 1 ? "Quelle est votre expérience professionnelle ?" : "Où recherchez-vous votre emploi ?"}
-                    </p>
-                  </div>
-
-                  {step === 2 && (
+                <input 
+                  type="text"
+                  value={cityInput}
+                  onChange={(e) => {
+                    setCityInput(e.target.value);
+                    if (selectedCity) setSelectedCity(null);
+                    if (isExpOpen) setIsExpOpen(false);
+                  } }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && cityInput.trim()) {
+                      handleCitySelect(cityInput.trim());
+                    }
+                  }}
+                  placeholder="Où souhaitez-vous travailler ?"
+                  className="w-full bg-white border border-border rounded-2xl py-4 pl-12 pr-24 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all shadow-sm"
+                />
+                <div className="absolute inset-y-0 right-2 flex items-center gap-2">
+                  {cityInput.trim() && !selectedCity && (
                     <button 
-                      onClick={resetSearch}
-                      className="p-2 hover:bg-slate-50 rounded-lg text-ink/30 hover:text-ink transition-colors"
-                      title="Retour"
+                      onClick={() => handleCitySelect(cityInput.trim())}
+                      className="bg-brand text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
                     >
-                      <Undo2 className="w-5 h-5" />
+                      Confirmer
                     </button>
                   )}
+                  {selectedCity && (
+                    <button 
+                      onClick={() => setIsExpOpen(!isExpOpen)}
+                      className="p-2 text-brand hover:bg-brand/5 rounded-xl transition-all"
+                    >
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                  )}
+                </div>
+              </div>
 
-                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-all ${isExpOpen ? 'bg-brand text-white rotate-180' : 'bg-slate-50 text-ink/40'}`}>
-                    <ChevronDown className="w-5 h-5 md:w-6 h-6" />
+              <AnimatePresence>
+                {isExpOpen && selectedCity && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute top-full left-0 right-0 mt-4 bg-white border border-border rounded-[2.5rem] shadow-2xl z-50 overflow-hidden p-4"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-4 px-4">
+                        <div className="flex flex-col">
+                          <p className="text-[10px] font-black text-ink/30 uppercase tracking-[0.2em]">Votre expérience</p>
+                          <p className="text-[9px] font-bold text-brand truncate">Recherche à {selectedCity}</p>
+                        </div>
+                      </div>
+                      {expOptions.map((opt) => (
+                        <button
+                          key={opt.id}
+                          onClick={() => handleExpSelect(opt.label)}
+                          className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-brand/5 transition-colors text-left group"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand group-hover:bg-brand group-hover:text-white transition-all">
+                            {opt.icon}
+                          </div>
+                          <span className="font-bold text-ink">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Categories - Vantage Style */}
+            <div className="flex gap-3 overflow-x-auto no-scrollbar mb-10">
+              {["ALL JOBS", "OSINT", "INTELLIGENCE ECONOMIQUE", "VIE", "HUMINT"].map((cat, i) => (
+                <button 
+                  key={i}
+                  className={`whitespace-nowrap px-6 py-2.5 rounded-2xl text-[10px] font-black tracking-widest transition-all ${i === 0 ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'bg-brand-light text-brand hover:bg-brand/10'}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Section Header - Ultra Compact & Pro */}
+            <div className="mb-6 flex flex-col gap-3">
+              <h2 className="font-work text-lg font-black text-ink tracking-tighter uppercase">
+                Archives
+              </h2>
+              
+              <div className="bg-brand/5 border border-brand/10 rounded-xl p-2 flex items-center gap-2 max-w-fit">
+                <Zap className="text-brand w-3 h-3 shrink-0" />
+                <p className="text-[9px] text-brand font-bold leading-tight uppercase tracking-wider">
+                  82% des recrutements OSINT se jouent en 24h
+                </p>
+              </div>
+
+              <button 
+                onClick={() => setShowPaywall(true)}
+                className="text-[10px] font-black text-brand uppercase tracking-widest hover:opacity-70 transition-all flex items-center gap-2"
+              >
+                Accédez aux dernières offres
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Job List - Vantage Style */}
+            <div className="space-y-4 mb-10">
+              {radarJobs.map((job, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  onClick={() => setShowPaywall(true)}
+                  className="bg-white border border-border rounded-3xl p-5 flex items-center gap-4 hover:shadow-xl hover:shadow-brand/5 transition-all cursor-pointer group relative opacity-70 grayscale-[0.5] hover:opacity-100 hover:grayscale-0"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-ink/[0.03] border border-border flex items-center justify-center shrink-0 group-hover:bg-brand/5 transition-colors">
+                    <Radar className="w-6 h-6 text-ink/20 group-hover:text-brand transition-colors" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-sm font-extrabold text-ink truncate group-hover:text-brand transition-colors">{job.title}</h4>
+                      <span className="px-2 py-0.5 bg-ink/5 text-ink/40 text-[8px] font-black rounded-md uppercase tracking-widest">Archivé</span>
+                    </div>
+                    <p className="text-[10px] font-bold text-ink/40 uppercase tracking-widest mb-2">{job.company}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 text-[9px] font-bold text-ink/40">
+                        <MapPin className="w-3 h-3 text-brand" />
+                        {job.location}, FR
+                      </div>
+                      <div className="flex items-center gap-1 text-[9px] font-bold text-ink/40">
+                        <Clock className="w-3 h-3 text-brand" />
+                        {job.time}
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
+              ))}
+            </div>
 
-                <AnimatePresence mode="wait">
-                  {isExpOpen && (
-                    <motion.div 
-                      key={step}
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-2xl border border-black/5 rounded-2xl shadow-2xl overflow-hidden z-50 p-2"
-                    >
-                      {step === 1 ? (
-                        expOptions.map((opt, i) => (
-                          <motion.button
-                            key={i}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleExpSelect(opt.label);
-                            }}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                            className="w-full flex items-center gap-4 p-4 rounded-xl hover:bg-brand/5 group transition-all text-left"
-                          >
-                            <div className="w-10 h-10 rounded-lg bg-slate-50 group-hover:bg-brand/10 text-ink/40 group-hover:text-brand flex items-center justify-center transition-colors">
-                              {opt.icon}
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-ink group-hover:text-brand transition-colors">{opt.label}</p>
-                              <p className="text-xs text-ink/40">Sélectionner ce niveau</p>
-                            </div>
-                            <ArrowRight className="w-5 h-5 text-ink/20 group-hover:text-brand group-hover:translate-x-1 transition-all" />
-                          </motion.button>
-                        ))
-                      ) : (
-                        locationOptions.map((opt, i) => (
-                          <motion.button
-                            key={i}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsExpOpen(false);
-                              setShowPaywall(true);
-                            }}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                            className="w-full flex items-center gap-4 p-4 rounded-xl hover:bg-brand/5 group transition-all text-left"
-                          >
-                            <div className="w-10 h-10 rounded-lg bg-slate-50 group-hover:bg-brand/10 text-ink/40 group-hover:text-brand flex items-center justify-center transition-colors">
-                              {opt.icon}
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-ink group-hover:text-brand transition-colors">{opt.label}</p>
-                              <p className="text-xs text-ink/40">Rejoindre le groupe {opt.label}</p>
-                            </div>
-                            <ArrowRight className="w-5 h-5 text-ink/20 group-hover:text-brand group-hover:translate-x-1 transition-all" />
-                          </motion.button>
-                        ))
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-
-              {/* Innovative Marquee Band */}
-              <div className="relative mb-12 group">
-                <div className="w-full overflow-hidden relative">
-                  {/* Gradient Masks for smooth entry/exit */}
-                  <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-                  <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-
-                  <motion.div 
-                    animate={{ x: ["0%", "-50%"] }}
-                    transition={{ 
-                      duration: 15, 
-                      repeat: Infinity, 
-                      ease: "linear" 
-                    }}
-                    className="flex whitespace-nowrap py-6 items-center"
-                  >
-                    {[
-                      { name: "LinkedIn", icon: <Globe className="w-4 h-4" />, style: "font-sans font-black tracking-tighter text-[#0077B5]" },
-                      { name: "Indeed", icon: <Search className="w-4 h-4" />, style: "font-sans font-bold text-[#21409A]" },
-                      { name: "Welcome to the Jungle", icon: <Rocket className="w-4 h-4" />, style: "font-serif italic font-bold text-ink" },
-                      { name: "Glassdoor", icon: <CheckCircle2 className="w-4 h-4" />, style: "font-sans font-semibold text-[#0CAA41]" },
-                      { name: "Monster", icon: <Zap className="w-4 h-4" />, style: "font-impact text-2xl text-[#6d4c9f]" },
-                      { name: "Hired", icon: <Compass className="w-4 h-4" />, style: "font-tech text-[#f36c52]" },
-                      { name: "Otta", icon: <Sparkles className="w-4 h-4" />, style: "font-display font-black text-ink" },
-                      { name: "Remote.ok", icon: <Globe className="w-4 h-4" />, style: "font-mono font-bold text-[#ff4742]" },
-                      { name: "We Work Remotely", icon: <MapPin className="w-4 h-4" />, style: "font-serif font-bold text-[#ff0000]" },
-                      // Duplicate for seamless loop
-                      { name: "LinkedIn", icon: <Globe className="w-4 h-4" />, style: "font-sans font-black tracking-tighter text-[#0077B5]" },
-                      { name: "Indeed", icon: <Search className="w-4 h-4" />, style: "font-sans font-bold text-[#21409A]" },
-                      { name: "Welcome to the Jungle", icon: <Rocket className="w-4 h-4" />, style: "font-serif italic font-bold text-ink" },
-                      { name: "Glassdoor", icon: <CheckCircle2 className="w-4 h-4" />, style: "font-sans font-semibold text-[#0CAA41]" },
-                      { name: "Monster", icon: <Zap className="w-4 h-4" />, style: "font-impact text-2xl text-[#6d4c9f]" },
-                      { name: "Hired", icon: <Compass className="w-4 h-4" />, style: "font-tech text-[#f36c52]" },
-                      { name: "Otta", icon: <Sparkles className="w-4 h-4" />, style: "font-display font-black text-ink" },
-                      { name: "Remote.ok", icon: <Globe className="w-4 h-4" />, style: "font-mono font-bold text-[#ff4742]" },
-                      { name: "We Work Remotely", icon: <MapPin className="w-4 h-4" />, style: "font-serif font-bold text-[#ff0000]" }
-                    ].map((board, i) => (
-                      <div 
-                        key={i} 
-                        className="mx-12 flex items-center gap-3 group/item transition-all duration-300"
-                      >
-                        <div className="w-8 h-8 flex items-center justify-center text-ink/20 group-hover/item:text-brand transition-all">
-                          {board.icon}
-                        </div>
-                        <span className={`text-lg opacity-40 group-hover/item:opacity-100 transition-all duration-300 cursor-default ${board.style}`}>
-                          {board.name}
-                        </span>
-                      </div>
-                    ))}
-                  </motion.div>
-                </div>
-              </div>
-
-
-
-            </motion.div>
-
+            {/* Featured Card - Vantage Style */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative flex justify-center sm:justify-end"
+              whileHover={{ scale: 1.02 }}
+              className="bg-brand rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-brand/30 mb-12"
             >
-              {/* Telegram Mockup - Responsive scaling */}
-              <div 
-                onClick={() => setShowPaywall(true)}
-                className="relative z-10 bg-[#17212b] rounded-[2rem] shadow-[0_0_50px_rgba(255,85,0,0.1)] border border-black/5 overflow-hidden w-[260px] sm:w-[280px] md:w-[320px] transform scale-90 sm:scale-100 lg:scale-95 origin-center sm:origin-right cursor-pointer hover:border-brand/50 transition-all duration-500 group/mockup"
-              >
-                <div className="absolute inset-0 bg-brand/0 group-hover/mockup:bg-brand/5 transition-colors z-20" />
-                {/* Header */}
-                <div className="bg-[#242f3d] p-3 md:p-4 flex items-center gap-3 border-b border-black/20">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand to-[#FF885E] flex items-center justify-center text-white font-bold shadow-lg">
-                    <Radar className="w-5 h-5 md:w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-white font-bold text-[12px] md:text-[14px] leading-tight">Radar OSINT</h3>
-                    <p className="text-white/40 text-[10px] md:text-[11px]">2 482 membres en ligne</p>
-                  </div>
-                  <div className="flex gap-3 text-white/40">
-                    <Search className="w-4 h-4 md:w-5 h-5" />
-                  </div>
-                </div>
-
-                {/* Chat Content */}
-                <div className="h-[320px] md:h-[420px] overflow-y-auto p-3 md:p-4 space-y-4 bg-[#0e1621] custom-scrollbar">
-                  {/* Message 1 */}
-                  <div className="bg-[#182533] rounded-2xl p-4 border border-white/5 relative shadow-xl">
-                    <span className="text-brand text-[10px] md:text-[11px] font-black uppercase tracking-widest block mb-2">Bot Intelligence</span>
-                    <div className="text-white text-[11px] md:text-[13px] leading-relaxed space-y-2">
-                      <p className="font-bold text-white/90">🆕 Analyste Due Diligence Senior</p>
-                      <p className="flex items-center gap-2 text-white/60">
-                        <span className="w-1.5 h-1.5 bg-brand rounded-full" /> S-RM | Cape Town
-                      </p>
-                      <p className="text-white/40 italic text-[10px] md:text-[11px]">Recherche et rédaction de rapports de conformité. Expertise risques politiques.</p>
-                      <p className="text-brand truncate text-[10px] md:text-[11px] font-medium">https://www.s-rminform.com/careers/...</p>
-                    </div>
-                    <div className="flex justify-end mt-2">
-                      <span className="text-white/20 text-[9px] md:text-[10px]">18:00 ✓✓</span>
-                    </div>
-                  </div>
-
-                  {/* Message 2 */}
-                  <div className="bg-[#182533] rounded-2xl p-4 border border-white/5 relative shadow-xl">
-                    <div className="text-white text-[11px] md:text-[13px] leading-relaxed space-y-2">
-                      <p className="font-bold text-white/90">🆕 Consultant Intelligence Éco</p>
-                      <p className="flex items-center gap-2 text-white/60">
-                        <span className="w-1.5 h-1.5 bg-brand rounded-full" /> ADIT | Paris, France
-                      </p>
-                      <p className="text-white/40 italic text-[10px] md:text-[11px]">Veille stratégique et analyse de risques pays. Master requis.</p>
-                      <p className="text-brand truncate text-[10px] md:text-[11px] font-medium">https://adit.fr/recrutement/...</p>
-                    </div>
-                    <div className="flex justify-end mt-2">
-                      <span className="text-white/20 text-[9px] md:text-[10px]">18:01 ✓✓</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Input Bar */}
-                <div className="bg-[#17212b] p-3 flex items-center gap-3 border-t border-black/20">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-ink/40 text-[10px] font-bold">AE</div>
-                  <div className="flex-1 bg-slate-50 rounded-full px-4 py-2 flex items-center">
-                    <span className="text-ink/20 text-xs">Écrire un message...</span>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center text-white shadow-lg shadow-brand/20">
-                    <ArrowRight className="w-4 h-4 rotate-90" />
-                  </div>
-                </div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-3xl" />
+              <div className="relative z-10">
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60 mb-3 block">FIELD REPORT : INTERNATIONAL MOBILITY</span>
+                <h3 className="text-xl font-extrabold leading-tight mb-6 max-w-[340px]">
+                  Sponsorship & Recrutement Direct : Analyse des corridors de mobilité pour les experts en renseignement. Notre retour d'expérience terrain 2026.
+                </h3>
+                <button 
+                  onClick={() => setShowPaywall(true)}
+                  className="bg-white/20 backdrop-blur-md border border-white/30 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-brand transition-all flex items-center gap-2 group"
+                >
+                  Accéder à l'analyse
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
-
-              {/* Decorative elements */}
-              <div className="absolute -top-10 -right-10 w-48 h-48 bg-brand/20 rounded-full blur-[100px] -z-10" />
-              <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-blue-500/10 rounded-full blur-[100px] -z-10" />
+              {/* Abstract Wave Detail */}
+              <div className="absolute bottom-4 right-8 opacity-20">
+                <svg width="120" height="60" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 50C20 40 40 60 60 50C80 40 100 60 120 50" stroke="white" strokeWidth="4" strokeLinecap="round" />
+                  <path d="M0 30C20 20 40 40 60 30C80 20 100 40 120 30" stroke="white" strokeWidth="4" strokeLinecap="round" opacity="0.5" />
+                </svg>
+              </div>
             </motion.div>
-          </div>
+
+            {/* Innovative Marquee Band removed */}
+          </motion.div>
         </section>
 
         {/* Value Proposition */}
@@ -516,19 +429,19 @@ export default function App() {
                 <div className="w-14 h-14 bg-brand/5 rounded-2xl flex items-center justify-center mb-6 border border-brand/10 group-hover:scale-110 transition-transform">
                   <Search className="text-brand w-7 h-7" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-ink">Curation Hybride</h3>
+                <h3 className="text-xl font-bold mb-4 text-ink">Expertise Analytique</h3>
                 <p className="text-ink/60 leading-relaxed">
-                  Un mélange puissant d'algorithmes de scraping et de validation manuelle par des experts en intelligence économique.
+                  Au-delà du simple scraping, chaque opportunité est qualifiée par nos analystes pour garantir sa pertinence stratégique et opérationnelle.
                 </p>
               </div>
 
               <div className="bg-white p-8 rounded-[2.5rem] border border-black/5 hover:border-brand/50 transition-all group shadow-sm">
                 <div className="w-14 h-14 bg-brand/5 rounded-2xl flex items-center justify-center mb-6 border border-brand/10 group-hover:scale-110 transition-transform">
-                  <Clock className="text-brand w-7 h-7" />
+                  <Zap className="text-brand w-7 h-7" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-ink">Rendez-vous à 18h</h3>
+                <h3 className="text-xl font-bold mb-4 text-ink">Réactivité Opérationnelle</h3>
                 <p className="text-ink/60 leading-relaxed">
-                  Chaque jour à 18h00 pile, recevez votre condensé d'opportunités directement dans votre boîte mail.
+                  Le renseignement est une course contre la montre. Nos cycles de collecte tri-quotidiens vous assurent une avance critique sur le marché.
                 </p>
               </div>
 
@@ -536,61 +449,137 @@ export default function App() {
                 <div className="w-14 h-14 bg-brand/5 rounded-2xl flex items-center justify-center mb-6 border border-brand/10 group-hover:scale-110 transition-transform">
                   <Mail className="text-brand w-7 h-7" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-ink">Alertes Exclusives</h3>
+                <h3 className="text-xl font-bold mb-4 text-ink">Réseaux Fermés</h3>
                 <p className="text-ink/60 leading-relaxed">
-                  Accédez à des offres "cachées" ou publiées sur des réseaux spécialisés que les agrégateurs classiques ignorent.
+                  Nous exploitons des canaux de recrutement non indexés et des cercles de confiance inaccessibles aux moteurs de recherche standards.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section id="tarifs" className="py-16 md:py-24 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-ink border border-white/5 text-white rounded-[2rem] md:rounded-[3.5rem] p-8 md:p-20 relative overflow-hidden shadow-2xl">
-              <div className="relative z-10 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand/10 border border-brand/20 rounded-full text-brand text-[10px] md:text-xs font-bold tracking-widest uppercase mb-6 md:mb-8">
-                    <Zap className="w-4 h-4" />
-                    Offre Limitée
+        {/* Forums Section */}
+        <section id="forums" className="py-24 relative overflow-hidden bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand/5 border border-brand/10 rounded-full text-brand text-xs font-bold tracking-widest uppercase mb-8">
+                  <Compass className="w-4 h-4" />
+                  Communauté Exclusive
+                </div>
+                <h2 className="font-display text-4xl md:text-6xl font-bold mb-8 text-ink leading-tight">
+                  Le RETEX au service de votre carrière.
+                </h2>
+                <p className="text-xl text-ink/60 mb-10 leading-relaxed">
+                  Intégrez notre cercle de confiance : un espace d'échange sécurisé où les praticiens du renseignement partagent des retours d'expérience sans filtre sur les employeurs et les méthodologies.
+                </p>
+                
+                <div className="space-y-6">
+                  {[
+                    { title: "Tips Entreprises", desc: "Découvrez l'envers du décor avant de postuler." },
+                    { title: "Retours d'Expérience", desc: "Des témoignages réels sur les missions et les salaires." },
+                    { title: "Entraide OSINT", desc: "Posez vos questions techniques à la communauté." }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-black/5">
+                        <CheckCircle2 className="text-brand w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-ink mb-1">{item.title}</h4>
+                        <p className="text-ink/60 text-sm">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 bg-brand/5 blur-[100px] -z-10" />
+                <div className="bg-white border border-black/5 rounded-[2.5rem] p-8 shadow-xl">
+                  <div className="space-y-4">
+                    {[
+                      { user: "Alex M.", text: "Le process chez Thales est assez long, prévoyez 3 entretiens techniques...", time: "Il y a 2h" },
+                      { user: "Sarah K.", text: "Nouveau tip pour le scraping LinkedIn sans se faire flagger : utilisez...", time: "Il y a 5h" },
+                      { user: "Marc D.", text: "Quelqu'un a un retour sur l'ambiance au pôle cyber de la DGSE ?", time: "Il y a 1j" }
+                    ].map((post, i) => (
+                      <motion.div 
+                        key={i}
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="bg-surface p-5 rounded-2xl border border-black/5"
+                      >
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="font-bold text-ink text-sm">{post.user}</span>
+                          <span className="text-[10px] text-ink-light font-bold uppercase">{post.time}</span>
+                        </div>
+                        <p className="text-ink-light text-sm italic">"{post.text}"</p>
+                      </motion.div>
+                    ))}
                   </div>
-                  <h2 className="font-display text-3xl md:text-6xl font-bold mb-6 md:mb-8 leading-tight text-white">Un investissement pour votre futur.</h2>
-                  <p className="text-white/50 text-lg md:text-xl mb-8 md:mb-10 leading-relaxed">
+                  <div className="mt-8 p-6 bg-brand-light rounded-2xl text-center border border-brand/10">
+                    <p className="text-brand font-bold text-sm mb-2">Accès réservé aux membres Premium</p>
+                    <button 
+                      onClick={() => setShowPaywall(true)}
+                      className="text-xs font-bold uppercase tracking-widest text-brand hover:underline"
+                    >
+                      Rejoindre la discussion →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="tarifs" className="py-24 bg-brand-light/30 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="bg-white rounded-[3rem] p-8 md:p-16 shadow-xl border border-black/5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-1/2 h-full bg-brand/5 -skew-x-12 translate-x-1/4 pointer-events-none" />
+              
+              <div className="grid lg:grid-cols-2 gap-16 items-center relative">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand/10 text-brand text-xs font-bold mb-8">
+                    <Sparkles className="w-4 h-4" />
+                    OFFRE LIMITÉE
+                  </div>
+                  <h2 className="font-display text-4xl md:text-6xl font-bold mb-8 leading-tight text-ink">Un investissement pour votre futur.</h2>
+                  <p className="text-ink-light text-lg md:text-xl mb-10 leading-relaxed">
                     Rejoignez la communauté des experts OSINT les mieux informés. Pas d'engagement, juste de la valeur brute.
                   </p>
-                  <ul className="space-y-4 md:space-y-5">
+                  <ul className="space-y-5">
                     {[
                       "Accès complet au Radar pendant 3 mois",
-                      "Newsletter quotidienne à 18h",
-                      "Offres OSINT, IE & Due Diligence",
+                      "Accès aux Forums Privés & Tips",
+                      "Alertes en temps réel (3 scans/jour)",
                       "Support prioritaire par email"
                     ].map((feature, i) => (
-                      <li key={i} className="flex items-center gap-3 md:gap-4 text-base md:text-lg">
-                        <CheckCircle2 className="text-brand w-5 h-5 md:w-6 h-6 flex-shrink-0" />
-                        <span className="text-white/80">{feature}</span>
+                      <li key={i} className="flex items-center gap-4 text-lg">
+                        <div className="w-6 h-6 rounded-full bg-brand/10 flex items-center justify-center flex-shrink-0">
+                          <CheckCircle2 className="text-brand w-4 h-4" />
+                        </div>
+                        <span className="text-ink-light">{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div className="relative mt-8 lg:mt-0">
-                  <div className="absolute inset-0 bg-brand/20 blur-[80px] md:blur-[100px] -z-10" />
-                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-12 text-center relative">
-                    <div className="text-brand font-black uppercase tracking-[0.2em] text-[10px] md:text-xs mb-4 md:mb-6">PRIX DE LANCEMENT</div>
-                    <div className="flex items-baseline justify-center gap-2 mb-8 md:mb-10">
-                      <span className="text-6xl md:text-8xl font-black tracking-tighter text-white">15€</span>
-                      <span className="text-white/30 font-bold text-lg md:text-xl">/ 3 mois</span>
-                    </div>
-                    <button 
-                      onClick={() => setShowPaywall(true)}
-                      className="w-full bg-brand text-white py-4 md:py-6 rounded-xl md:rounded-2xl font-black text-lg md:text-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(255,85,0,0.3)] block"
-                    >
-                      S'ABONNER MAINTENANT
-                    </button>
-                    <div className="flex items-center justify-center gap-2 mt-6 md:mt-8 text-white/30 text-xs md:text-sm font-medium">
-                      <ShieldCheck className="w-4 h-4" />
-                      Paiement sécurisé via Stripe
-                    </div>
+
+                <div className="bg-surface rounded-[2.5rem] p-10 md:p-12 text-center border border-black/5 shadow-inner">
+                  <div className="text-brand font-bold uppercase tracking-widest text-xs mb-6">PRIX DE LANCEMENT</div>
+                  <div className="flex items-baseline justify-center gap-2 mb-10">
+                    <span className="text-7xl md:text-8xl font-bold tracking-tighter text-ink">18€</span>
+                    <span className="text-ink-light font-medium text-xl">/ 3 mois</span>
+                  </div>
+                  <button 
+                    onClick={() => setShowPaywall(true)}
+                    className="w-full bg-brand text-white py-6 rounded-2xl font-bold text-xl hover:shadow-xl hover:shadow-brand/20 transition-all block"
+                  >
+                    S'ABONNER MAINTENANT
+                  </button>
+                  <div className="flex items-center justify-center gap-2 mt-8 text-ink-light/40 text-sm font-medium">
+                    <ShieldCheck className="w-4 h-4" />
+                    Paiement sécurisé via Stripe
                   </div>
                 </div>
               </div>
@@ -600,73 +589,74 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="py-20 border-t border-white/5 bg-[#0a192f] text-white relative z-10">
+      <footer className="py-24 bg-white border-t border-black/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-16">
+          <div className="grid md:grid-cols-4 gap-16 mb-20">
             <div className="col-span-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center">
-                  <Radar className="text-white w-6 h-6" />
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 bg-brand rounded-2xl flex items-center justify-center shadow-lg shadow-brand/20">
+                  <Radar className="text-white w-7 h-7" />
                 </div>
-                <span className="font-display font-bold text-2xl text-white">Radar OSINT</span>
+                <span className="font-display font-bold text-3xl text-ink">Vantage</span>
               </div>
-              <p className="text-white/60 max-w-sm leading-relaxed">
-                La première plateforme de veille stratégique dédiée aux métiers de l'intelligence et de l'investigation numérique.
+              <p className="text-ink-light max-w-sm text-lg leading-relaxed">
+                La plateforme de référence pour la mobilité stratégique des experts en renseignement et investigation numérique.
               </p>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-6">Navigation</h4>
-              <ul className="space-y-4 text-white/40 text-sm">
+              <h4 className="text-ink font-bold mb-8 text-lg">Navigation</h4>
+              <ul className="space-y-4 text-ink-light">
                 <li><a href="#valeur" className="hover:text-brand transition-colors">Valeur</a></li>
+                <li><a href="#forums" className="hover:text-brand transition-colors">Forums</a></li>
                 <li><a href="#tarifs" className="hover:text-brand transition-colors">Tarifs</a></li>
                 <li><a href="#" className="hover:text-brand transition-colors">Blog</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-6">Légal</h4>
-              <ul className="space-y-4 text-white/40 text-sm">
+              <h4 className="text-ink font-bold mb-8 text-lg">Légal</h4>
+              <ul className="space-y-4 text-ink-light">
                 <li><a href="#" className="hover:text-brand transition-colors">Mentions Légales</a></li>
                 <li><a href="#" className="hover:text-brand transition-colors">Confidentialité</a></li>
                 <li><a href="#" className="hover:text-brand transition-colors">Contact</a></li>
               </ul>
             </div>
           </div>
-          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-white/20 text-sm">
-              © {new Date().getFullYear()} Radar OSINT. Tous droits réservés.
+          <div className="pt-10 border-t border-black/5 flex flex-col md:flex-row justify-between items-center gap-8">
+            <p className="text-ink-light/40 text-sm">
+              © {new Date().getFullYear()} <span className="font-work font-bold">Wørk.ie</span> OSINT. Tous droits réservés.
             </p>
-            <div className="flex gap-6">
-              <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-brand hover:border-brand transition-all cursor-pointer">
-                <Mail className="w-5 h-5" />
+            <div className="flex gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-surface border border-black/5 flex items-center justify-center text-ink-light hover:text-brand hover:border-brand transition-all cursor-pointer">
+                <Mail className="w-6 h-6" />
               </div>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Mobile Navigation */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-lg">
-        <div className="bg-white/60 backdrop-blur-2xl border border-black/5 shadow-2xl rounded-full p-1.5 flex items-center justify-around">
+      {/* Mobile Navigation - Glassmorphism Pill */}
+      <div className="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-md">
+        <div className="bg-white/10 backdrop-blur-[40px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] rounded-full px-6 py-3 flex items-center justify-around">
           <button 
             onClick={() => setShowPaywall(true)}
-            className="flex flex-col items-center gap-1 p-2 text-brand transition-colors"
+            className="flex flex-col items-center gap-1 text-black hover:scale-110 transition-all"
           >
-            <Compass className="w-5 h-5" />
-            <span className="text-[8px] font-mono font-black uppercase tracking-[0.2em]">Explorer</span>
+            <Search className="w-5 h-5 stroke-[3px]" />
+            <span className="text-[8px] font-black uppercase tracking-tighter">Explorer</span>
           </button>
           <button 
             onClick={() => setShowPaywall(true)}
-            className="flex flex-col items-center gap-1 p-2 text-ink/30 hover:text-brand transition-colors"
+            className="flex flex-col items-center gap-1 text-black hover:scale-110 transition-all"
           >
-            <Heart className="w-5 h-5" />
-            <span className="text-[8px] font-mono font-black uppercase tracking-[0.2em]">Favoris</span>
+            <Heart className="w-5 h-5 fill-black stroke-[1px]" />
+            <span className="text-[8px] font-black uppercase tracking-tighter">Favoris</span>
           </button>
           <button 
             onClick={() => setShowPaywall(true)}
-            className="flex flex-col items-center gap-1 p-2 text-ink/30 hover:text-brand transition-colors"
+            className="flex flex-col items-center gap-1 text-black hover:scale-110 transition-all"
           >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="text-[8px] font-mono font-black uppercase tracking-[0.2em]">Dashboard</span>
+            <LayoutDashboard className="w-5 h-5 fill-black stroke-[1px]" />
+            <span className="text-[8px] font-black uppercase tracking-tighter">Dashboard</span>
           </button>
         </div>
       </div>
